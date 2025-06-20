@@ -18,7 +18,7 @@
             <a href="#" class="text-gray-600 hover:text-indigo-600">tentang kami</a>
         </div>
     </nav>
-
+    
     {{-- Hero Section --}}
     <section class="text-center py-20 bg-indigo-600 text-white">
         <h2 class="text-4xl font-bold mb-4">Sistem Peminjaman Ruangan & Inventaris</h2>
