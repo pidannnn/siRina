@@ -1,5 +1,5 @@
 # ![SiRina](https://iharsh234.github.io/WebApp/images/demo/demo_landing.JPG)
-# WebApp
+# SiRina
 <table>
 <tr>
 <td>
