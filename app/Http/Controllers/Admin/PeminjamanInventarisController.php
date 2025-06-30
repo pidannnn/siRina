@@ -1,16 +1,14 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PeminjamanInventaris;
 
-
 class PeminjamanInventarisController extends Controller
 {
     public function index()
     {
-        // $peminjamans = PeminjamanInventaris::with('user', 'inventaris')->latest()->get();
-        // return view('admin.peminjaman_inventaris.index', compact('peminjamans'));
         $peminjamans = PeminjamanInventaris::with(['user', 'inventaris'])->latest()->get();
         return view('admin.peminjaman_inventaris.index', compact('peminjamans'));
     }
@@ -24,7 +22,7 @@ class PeminjamanInventarisController extends Controller
     public function approve($id)
     {
         $peminjaman = PeminjamanInventaris::findOrFail($id);
-        $peminjaman->status = 'approved';
+        $peminjaman->status = PeminjamanInventaris::STATUS_DISETUJUI; // ✅ Cocok dengan enum
         $peminjaman->save();
 
         return back()->with('success', 'Peminjaman inventaris disetujui.');
@@ -33,7 +31,7 @@ class PeminjamanInventarisController extends Controller
     public function reject($id)
     {
         $peminjaman = PeminjamanInventaris::findOrFail($id);
-        $peminjaman->status = 'rejected';
+        $peminjaman->status = PeminjamanInventaris::STATUS_DITOLAK; // ✅ Cocok dengan enum
         $peminjaman->save();
 
         return back()->with('success', 'Peminjaman inventaris ditolak.');

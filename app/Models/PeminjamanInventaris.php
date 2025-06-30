@@ -6,9 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class PeminjamanInventaris extends Model
 {
+    const STATUS_MENUNGGU = 'menunggu';
+    const STATUS_DISETUJUI = 'disetujui'; // ✅ gunakan nilai enum yang sesuai
+    const STATUS_DITOLAK = 'ditolak';
+
     protected $table = 'peminjaman_inventaris';
+
     protected $fillable = [
-        'user_id', 'tanggal_pinjam', 'jam_mulai', 'jam_selesai', 'keperluan', 'status'
+        'user_id',
+        'inventaris_id',
+        'jumlah',
+        'tanggal_pinjam',
+        'tanggal_kembali',
+        'jam_mulai',
+        'jam_selesai',
+        'status',
+        'keperluan',
     ];
 
     public function user()
@@ -18,7 +31,7 @@ class PeminjamanInventaris extends Model
 
     public function inventaris()
     {
-        return $this->belongsToMany(Inventaris::class, 'peminjaman_inventaris_inventaris')
-                    ->withPivot('jumlah');
+            return $this->belongsTo(Inventaris::class);
+
     }
 }

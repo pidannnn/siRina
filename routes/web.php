@@ -1,5 +1,6 @@
 <?php
 
+// use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
@@ -12,6 +13,28 @@ use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\User\PeminjamanInventarisController as UserPeminjamanInventarisController;
 use App\Http\Controllers\Admin\PeminjamanInventarisController as AdminPeminjamanInventarisController;
 use App\Http\Controllers\CekKetersediaanRuanganController;
+use App\Models\Ruangan;
+
+
+
+// Route::get('/', [HomeController::class, 'index']);
+
+// ✅ Data Inventaris
+Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
+    Route::get('/inventaris', [InventarisController::class, 'index'])->name('inventaris.index');
+    Route::get('/inventaris/create', [InventarisController::class, 'create'])->name('inventaris.create');
+    Route::post('/inventaris', [InventarisController::class, 'store'])->name('inventaris.store');
+    Route::get('/inventaris/{id}/edit', [InventarisController::class, 'edit'])->name('inventaris.edit');
+    Route::put('/inventaris/{id}', [InventarisController::class, 'update'])->name('inventaris.update');
+    Route::delete('/inventaris/{id}', [InventarisController::class, 'destroy'])->name('inventaris.destroy');
+});
+
+
+Route::get('/cek-ketersediaan', [CekKetersediaanRuanganController::class, 'form'])
+    ->name('cek.ketersediaan.form');
+
+Route::post('/cek-ketersediaan/cek', [CekKetersediaanRuanganController::class, 'cek'])
+    ->name('cek.ketersediaan.cek');
 
 // ✅ Cek Ketersediaan Ruangan
 Route::get('/cek-ketersediaan-ruangan', [CekKetersediaanRuanganController::class, 'form'])->name('cek.ketersediaan.form');
@@ -23,15 +46,18 @@ Route::get('/auditorium', [RuanganController::class, 'showAuditorium'])->name('a
 Route::get('/a201', [RuanganController::class, 'showA201'])->name('a201');
 Route::get('/b201', [RuanganController::class, 'showB201'])->name('b201');
 
-// ✅ Home Route
+//home
 Route::get('/', function () {
     if (Auth::check()) {
         return Auth::user()->role === 'admin'
             ? redirect()->route('admin.dashboard')
             : redirect()->route('user.dashboard');
     }
-    return view('welcome');
+
+    $gedung = \App\Models\Ruangan::select('gedung')->distinct()->pluck('gedung');
+    return view('welcome', compact('gedung'));
 });
+
 
 // ✅ USER ROUTES
 Route::middleware(['auth', 'user'])->group(function () {
@@ -51,24 +77,27 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/user', [AdminDashboardController::class, 'show'])->name('admin.users.index');
 
-    // Data Inventaris
+    // ✅ Data Inventaris
     Route::get('/admin/inventaris', [InventarisController::class, 'index'])->name('admin.inventaris.index');
+    Route::get('/admin/inventaris/create', [InventarisController::class, 'create'])->name('admin.inventaris.create');
+    Route::post('/admin/inventaris', [InventarisController::class, 'store'])->name('admin.inventaris.store');
+    Route::get('/admin/inventaris/{id}/edit', [InventarisController::class, 'edit'])->name('admin.inventaris.edit');
+    Route::put('/admin/inventaris/{id}', [InventarisController::class, 'update'])->name('admin.inventaris.update');
+    Route::delete('/admin/inventaris/{id}', [InventarisController::class, 'destroy'])->name('admin.inventaris.destroy');
 
-    // Data Peminjaman Ruangan
+    // ✅ Data Peminjaman Ruangan
     Route::get('/admin/peminjaman', [PeminjamanController::class, 'index'])->name('admin.peminjaman.index');
     Route::get('/admin/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('admin.peminjaman.show');
-
-    // Data Peminjaman Inventaris
-    Route::get('/admin/peminjaman-inventaris', [AdminPeminjamanInventarisController::class, 'index'])->name('admin.peminjaman_inventaris.index');
-    Route::get('/peminjaman/inventaris/{id}', [AdminPeminjamanInventarisController::class, 'show'])->name('peminjaman_inventaris.show');
-
-    // Approve & Reject
     Route::patch('/admin/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('admin.peminjaman.approve');
     Route::patch('/admin/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])->name('admin.peminjaman.reject');
-    Route::patch('/admin/peminjaman/inventaris/{id}/approve', [AdminPeminjamanInventarisController::class, 'approve'])->name('admin.peminjaman_inventaris.approve');
-    Route::patch('/admin/peminjaman/inventaris/{id}/reject', [AdminPeminjamanInventarisController::class, 'reject'])->name('admin.peminjaman_inventaris.reject');
 
-    // Resource Data Ruangan
+    // ✅ Data Peminjaman Inventaris
+    Route::get('/admin/peminjaman-inventaris', [AdminPeminjamanInventarisController::class, 'index'])->name('admin.peminjaman_inventaris.index');
+    Route::get('/admin/peminjaman-inventaris/{id}', [AdminPeminjamanInventarisController::class, 'show'])->name('admin.peminjaman_inventaris.show');
+    Route::patch('/admin/peminjaman-inventaris/{id}/approve', [AdminPeminjamanInventarisController::class, 'approve'])->name('admin.peminjaman_inventaris.approve');
+    Route::patch('/admin/peminjaman-inventaris/{id}/reject', [AdminPeminjamanInventarisController::class, 'reject'])->name('admin.peminjaman_inventaris.reject');
+
+    // ✅ Resource Data Ruangan
     Route::resource('/admin/ruangan', RuanganController::class)->names([
         'index'   => 'admin.ruangan.index',
         'create'  => 'admin.ruangan.create',
@@ -79,6 +108,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'admin.ruangan.destroy',
     ]);
 });
+
 
 // ✅ Redirect setelah login berdasarkan usertype
 Route::get('/redirect-after-login', function () {

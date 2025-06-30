@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Validation\Rule;
+
 
 use Illuminate\Http\Request;
 use App\Models\Ruangan;
@@ -10,43 +12,46 @@ class CekKetersediaanRuanganController extends Controller
 {
     public function form()
     {
-        $gedung = Ruangan::select('gedung')->distinct()->pluck('gedung');
-        return view('cek_ketersediaan_ruangan', compact('gedung'));
+        try {
+            $gedung = Ruangan::select('gedung')->distinct()->orderBy('gedung')->pluck('gedung');
+            return view('cek_ketersediaan_ruangan', compact('gedung'));
+        } catch (\Exception $e) {
+            // Fallback jika query error
+            $gedung = ['Gedung A', 'Gedung B'];
+            return view('cek_ketersediaan_ruangan', compact('gedung'));
+        }
     }
 
     public function cek(Request $request)
     {
-        $request->validate([
-            'tanggal_awal' => 'required|date',
-            'tanggal_akhir' => 'required|date|after_or_equal:tanggal_awal',
-            'gedung' => 'required|string',
-        ]);
+        $tanggalAwal = $request->input('tanggal_awal');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+        $gedung = $request->input('gedung');
 
-        $tanggalAwal = $request->tanggal_awal;
-        $tanggalAkhir = $request->tanggal_akhir;
+        // Ambil semua ruangan di gedung tersebut
+        $ruanganList = Ruangan::where('gedung', $gedung)->get();
 
-        // Ambil semua ruangan di gedung yang dipilih
-        $ruangan = Ruangan::where('gedung', $request->gedung)->get();
+        $hasil = [];
 
-        // Proses: tentukan status dan peminjaman per ruangan
-        $hasil = $ruangan->map(function ($r) use ($tanggalAwal, $tanggalAkhir) {
-            // Ambil peminjaman dalam rentang tanggal
-            $peminjaman = Peminjaman::where('ruangan_id', $r->id)
+        foreach ($ruanganList as $ruangan) {
+            $peminjaman = \App\Models\Peminjaman::where('ruangan_id', $ruangan->id)
                 ->whereBetween('tanggal_pinjam', [$tanggalAwal, $tanggalAkhir])
-                ->get(['tanggal_pinjam']);
+                ->get();
 
-            return [
-                'ruangan' => $r,
-                'peminjaman' => $peminjaman,
+            $hasil[] = [
+                'ruangan' => $ruangan, // ⬅️ ini penting!
                 'tersedia' => $peminjaman->isEmpty(),
+                'peminjaman' => $peminjaman,
             ];
-        });
+        }
 
-        return view('cek_ketersediaan_hasil', [
-            'tanggal_awal' => $tanggalAwal,
-            'tanggal_akhir' => $tanggalAkhir,
-            'gedung' => $request->gedung,
-            'hasil' => $hasil
-        ]);
+        return view('cek_ketersediaan_hasil', compact(
+            'hasil',
+            'tanggalAwal',
+            'tanggalAkhir',
+            'gedung'
+        ));
+        
     }
+    
 }

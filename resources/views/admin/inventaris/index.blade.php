@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <h1>Data Inventaris</h1>
-    <a href="#" class="btn btn-primary mb-3">+ Tambah Inventaris</a>
+    <a href="{{ route('admin.inventaris.create') }}" class="btn btn-primary mb-3">+ Tambah Inventaris</a>
 
     <table class="table table-bordered">
         <thead>
