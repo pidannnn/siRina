@@ -3,7 +3,7 @@
 @section('title', 'Peminjaman Ruangan')
 
 @section('content')
-<div class="container mt-4">
+<div class="container pt-4">
   <h3>Form Peminjaman Ruangan</h3>
 
   @if ($errors->any())

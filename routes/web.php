@@ -48,11 +48,11 @@ Route::get('/b201', [RuanganController::class, 'showB201'])->name('b201');
 
 //home
 Route::get('/', function () {
-    if (Auth::check()) {
-        return Auth::user()->role === 'admin'
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('user.dashboard');
-    }
+    // if (Auth::check()) {
+    //     return Auth::user()->role === 'admin'
+    //         ? redirect()->route('admin.dashboard')
+    //         : redirect()->route('user.dashboard');
+    // }
 
     $gedung = \App\Models\Ruangan::select('gedung')->distinct()->pluck('gedung');
     return view('welcome', compact('gedung'));

@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard')
-
 @section('content')
 <!-- Content Header -->
 <div class="content-header">

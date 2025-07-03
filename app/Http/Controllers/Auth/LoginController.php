@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 class LoginController extends Controller
 {
     // app/Http/Controllers/Auth/LoginController.php
-public function showLoginForm()
-{
-    return view('auth.login'); // Pastikan file ini ada di resources/views/auth/login.blade.php
-}
-protected $redirectTo = '/dashboard'; // Hanya berlaku setelah login sukses
+    public function showLoginForm()
+    {
+        return view('auth.login'); // Pastikan file ini ada di resources/views/auth/login.blade.php
+    }
+    protected $redirectTo = '/dashboard'; // Hanya berlaku setelah login sukses
 }
